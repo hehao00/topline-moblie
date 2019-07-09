@@ -10,7 +10,6 @@
             clearable
             label="手机号"
             placeholder="请输入手机号"
-            @click-right-icon="$toast('question')"
         />
         <van-field
             v-model="user.code"
@@ -21,13 +20,14 @@
      </van-cell-group>
      <!-- 登陆按钮 -->
      <div class="login-btn">
-         <van-button class="btn" type="info">登陆</van-button>
+         <van-button class="btn" type="info" @click.prevent="handleLogin">登陆</van-button>
      </div>
 
   </div>
 </template>
 
 <script>
+import { login } from '@/api/user'
 export default {
   name: 'LoginIndex',
 
@@ -40,7 +40,17 @@ export default {
     }
   },
 
-  methods: {}
+  methods: {
+    async handleLogin () {
+      try {
+        const data = await login(this.user)
+        console.log(data)
+      } catch (err) {
+        console.log(err)
+        console.log('登陆失败')
+      }
+    }
+  }
 }
 </script>
 
