@@ -20,7 +20,13 @@
      </van-cell-group>
      <!-- 登陆按钮 -->
      <div class="login-btn">
-         <van-button class="btn" type="info" @click.prevent="handleLogin">登陆</van-button>
+         <van-button
+         class="btn"
+         type="info"
+         @click.prevent="handleLogin"
+         :loading="loginLoading"
+         loading-text="登陆中..."
+         >登陆</van-button>
      </div>
 
   </div>
@@ -34,22 +40,27 @@ export default {
   data () {
     return {
       user: {
-        mobile: '',
-        code: ''
-      }
+        mobile: '17635146322',
+        code: '123456'
+      },
+      loginLoading: false // 控制登陆
     }
   },
 
   methods: {
     async handleLogin () {
+      this.loginLoading = true
       try {
         const data = await login(this.user)
         console.log(data)
         this.$store.commit('setUser', data)
+        // 跳转到首页
+        this.$router.push({ name: 'home' })
       } catch (err) {
         console.log(err)
         console.log('登陆失败')
       }
+      this.loginLoading = false
     }
   }
 }
