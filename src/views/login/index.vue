@@ -14,7 +14,6 @@
         />
         <van-field
             v-model="user.code"
-            type="password"
             label="验证码"
             placeholder="请输入验证码"
             required
