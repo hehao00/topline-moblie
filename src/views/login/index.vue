@@ -45,6 +45,7 @@ export default {
       try {
         const data = await login(this.user)
         console.log(data)
+        this.$store.commit('setUser', data)
       } catch (err) {
         console.log(err)
         console.log('登陆失败')

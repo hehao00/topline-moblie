@@ -17,7 +17,9 @@ request.interceptors.request.use(function (config) {
 // 响应
 request.interceptors.response.use(function (response) {
   // Do something with response data
-  return response
+  // 如果响应结果对象中有data，则直接返回这个data数据
+  // 如果响应结果对象中没有data ，直接原样返回这个数据
+  return response.data.data || response.data
 }, function (error) {
   // Do something with response error
   return Promise.reject(error)
