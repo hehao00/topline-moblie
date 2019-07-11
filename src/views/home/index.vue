@@ -3,7 +3,11 @@
     <van-nav-bar class="nav-bar" title="首页" fixed/>
     <!-- tab标签 -->
     <van-tabs class="channel-tabs" v-model="activeName">
-  <van-tab  title="推荐">
+  <van-tab
+    v-for="channelItem in channels"
+    :key="channelItem.id"
+    :title="channelItem.name"
+  >
     <!-- 下拉刷新 -->
     <!--
       下拉刷新组件
@@ -31,10 +35,6 @@
     </van-list>
      </van-pull-refresh>
   </van-tab>
-  <van-tab title="热门话题" >热门话题</van-tab>
-  <van-tab title="科技动态">科技动态</van-tab>
-  <van-tab title="标签 4">内容 4</van-tab>
-  <van-tab title="标签 5">内容 5</van-tab>
 </van-tabs>
 <!-- 底部 -->
 <van-tabbar>
@@ -47,11 +47,13 @@
 </template>
 
 <script>
+import { getUserChannels } from '@/api/channel'
 export default {
   name: 'HomeIndex',
 
   data () {
     return {
+      channels: [],
       activeName: 0,
       list: [],
       loading: false,
@@ -59,7 +61,9 @@ export default {
       pullRefreshLoading: false
     }
   },
-
+  async created () {
+    await this.loadChannels()
+  },
   methods: {
     onLoad () {
       // 异步更新数据
@@ -82,6 +86,19 @@ export default {
         this.pullRefreshLoading = false
         this.count++
       }, 500)
+    },
+    async loadChannels () {
+      try {
+        const localChannels = window.localStorage.getItem('channels')
+        // 如果本地有频道列表 则使用本地
+        if (localChannels) {
+          this.channels = localChannels
+        } else {
+          this.channels = (await getUserChannels()).channels
+        }
+      } catch (err) {
+
+      }
     }
   }
 }

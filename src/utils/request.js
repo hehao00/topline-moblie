@@ -1,4 +1,5 @@
 import axios from 'axios'
+import store from '@/store'
 // 封装axios请求模块
 // axios.create用于创建一个axios 实例
 const request = axios.create({
@@ -9,6 +10,11 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(function (config) {
   // Do something before request is sent
+  // 如果登陆了 统一给接口添加用户 token
+  const { user } = store.state
+  if (user) {
+    config.headers.Authorization = `Bearer ${user.token}`
+  }
   return config
 }, function (error) {
   // Do something with request error
