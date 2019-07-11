@@ -96,13 +96,13 @@ export default {
   color: #fff;
 }
 .channel-tabs {
-  margin-bottom:100px;
+  margin-bottom:92px;
 }
 .channel-tabs /deep/ .van-tabs__wrap {
   position: fixed;
-  top: 100px;
+  top: 92px;
 }
 .channel-tabs /deep/ .van-tabs__content {
-  top: 100px;
+  top: 92px;
 }
 </style>

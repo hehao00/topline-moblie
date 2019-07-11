@@ -10,14 +10,17 @@
             clearable
             label="手机号"
             placeholder="请输入手机号"
-            :error-message="errors.mobile"
+            v-validate="'required'"
+            name="mobile"
+            :error-message="errors.first('mobile')"
         />
         <van-field
             v-model="user.code"
-            label="验证码"
-            placeholder="请输入验证码"
-            required
-            :error-message="errors.code"
+            label="密码"
+            placeholder="请输入密码"
+            v-validate="'required'"
+            name="code"
+            :error-message="errors.first('code')"
         />
      </van-cell-group>
      <!-- 登陆按钮 -->
@@ -46,48 +49,83 @@ export default {
         code: '123456'
       },
       loginLoading: false, // 控制登陆
-      errors: {
+      myErrors: {
         mobile: '',
         code: ''
       }
     }
   },
+  created () {
+    this.configFormErrorMessages()
+  },
 
   methods: {
+    // async handleLogin () {
+    //   this.loginLoading = true
+    //   try {
+    //     // 发送请求前 校验表单数据 校验通过发送请求
+    //     const { mobile, code } = this.user
+    //     const errors = this.errors
+    //     // if (mobile.length){
+    //     //     errors.mobile = ''
+    //     // } else {
+    //     //     errors.mobile = '手机号不能为空'
+    //     //  return
+    //     // }
+    //     var myreg = /^[1][3,4,5,7,8][0-9]{9}$/
+    //     if (myreg.test(mobile)) {
+    //       errors.mobile = ''
+    //     } else {
+    //       errors.mobile = '手机号格式不正确'
+    //     }
+    //     var reg = reg = /^\d{6}$/
+    //     if (reg.test(code)) {
+    //       errors.code = ''
+    //     } else {
+    //       errors.code = '验证码有误'
+    //     }
+    //     const data = await login(this.user)
+    //     // console.log(data)
+    //     this.$store.commit('setUser', data)
+    //     // 跳转到首页
+    //     this.$router.push({ name: 'home' })
+    //   } catch (err) {
+    //     console.log(err)
+    //     console.log('登陆失败')
+    //   }
+    //   this.loginLoading = false
+    // }
     async handleLogin () {
-      this.loginLoading = true
       try {
-        // 发送请求前 校验表单数据 校验通过发送请求
-        const { mobile, code } = this.user
-        const errors = this.errors
-        // if (mobile.length){
-        //     errors.mobile = ''
-        // } else {
-        //     errors.mobile = '手机号不能为空'
-        //  return
-        // }
-        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/
-        if (myreg.test(mobile)) {
-          errors.mobile = ''
-        } else {
-          errors.mobile = '手机号格式不正确'
+        // 调用 JavaScript 触发验证
+        const valid = await this.$validator.validate()
+        // 如果校验失败，停止后续代码执行
+        if (!valid) {
+          return
         }
-        var reg = reg = /^\d{6}$/
-        if (reg.test(code)) {
-          errors.code = ''
-        } else {
-          errors.code = '验证码有误'
-        }
+        // 表单验证通过 发送请求 loading 加载
+        this.loginLoading = true
         const data = await login(this.user)
-        // console.log(data)
         this.$store.commit('setUser', data)
         // 跳转到首页
         this.$router.push({ name: 'home' })
       } catch (err) {
-        console.log(err)
-        console.log('登陆失败')
+        this.$toast.fail('登陆失败')
       }
       this.loginLoading = false
+    },
+    configFormErrorMessages () {
+      const dict = {
+        custom: {
+          mobile: {
+            required: '手机号不能为空'
+          },
+          code: {
+            required: '密码不能为空'
+          }
+        }
+      }
+      this.$validator.localize('zh_CN', dict)
     }
   }
 }
