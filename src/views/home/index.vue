@@ -14,7 +14,12 @@
       isLoading 控制下拉的 loading 状态
       refresh 下拉之后触发的事件
      -->
-   <van-pull-refresh v-model="pullRefreshLoading" @refresh="onRefresh">
+   <van-pull-refresh
+   v-model="pullRefreshLoading"
+   @refresh="onRefresh"
+   :success-duration="1000"
+   :success-text="channelItem.downPullSuccessText"
+   >
     <!-- list列表 -->
     <!--
       loading 控制加载更多的loading状态
@@ -100,24 +105,29 @@ export default {
      * 下拉刷新
      */
     async onRefresh () {
-      // 获取最新数据
-      const data = await getArticles({
-        channelId: this.activeChannel.id,
-        timestamp: Date.now(),
-        withTop: 1
-      })
-      // 如果有最新数据
+      const { activeChannel } = this
+      // 备份加载下一页数据的时间戳
+      const timestamp = activeChannel.timestamp
+      // 使用最新时间戳去请求最新的推荐数据
+      activeChannel.timestamp = Date.now()
+      const data = await this.loadArticles()
+      // 如果有最新数据，将数据更新到频道的文章列表中
       if (data.results.length) {
-        // 将最新数据重置到当前频道
-        this.activeChannel.articles = data.results
-        this.activeChannel.timestamp = data.pre_timestamp
-        this.activeChannel.pullSuccessText = '更新完成'
-        // 因为最新数据无法撑满一页，所以使用加载更多再请求一次
+        // 将当前最新的推荐内容重置到频道文章中
+        activeChannel.articles = data.results
+        // 由于你重置了文章列表，那么当前数据中的 pre_timestamp 就是上拉加载更多的下一页数据的时间戳
+        activeChannel.timestamp = data.pre_timestamp
+        activeChannel.downPullSuccessText = '更新成功'
+        // 当下拉刷新有数据并重置以后数据无法满足一屏，所以我们使用 onLoad 再多加载一页数据
         this.onLoad()
+      } else {
+        // 如果没有最新数据，提示已是最新内容
+        activeChannel.downPullSuccessText = '已是最新数据'
       }
-      this.activeChannel.pullSuccessText = '暂无数据更新'
-      // 无论如何，最后都关闭加载状态
-      this.activeChannel.pullRefreshLoading = false
+      // 下拉刷新结束，取消 loading 状态
+      activeChannel.downPullLoading = false
+      // 没有最新数据，将原来的用于请求下一页的时间戳恢复过来
+      activeChannel.timestamp = timestamp
     },
     async loadChannels () {
       try {
