@@ -58,6 +58,7 @@
   <home-channel
   v-model="isChannelShow"
   :user-channels="channels"
+  :active-index="activeChannelIndex"
   ></home-channel>
   </div>
 </template>
