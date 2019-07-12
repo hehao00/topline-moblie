@@ -48,14 +48,20 @@
   <van-tabbar-item icon="video-o" to="/video">视频</van-tabbar-item>
   <van-tabbar-item icon="manager-o" to="/my">我的</van-tabbar-item>
 </van-tabbar>
+<!-- 频道组件 -->
+  <home-channel></home-channel>
   </div>
 </template>
 
 <script>
 import { getUserChannels } from '@/api/channel'
 import { getArticles } from '@/api/article'
+import HomeChannel from './components/channel'
 export default {
   name: 'HomeIndex',
+  components: {
+    HomeChannel
+  },
   data () {
     return {
       channels: [],
