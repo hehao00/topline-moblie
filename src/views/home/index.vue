@@ -55,7 +55,10 @@
 <!--
   :value="isChannelShow"
  -->
-  <home-channel v-model="isChannelShow"></home-channel>
+  <home-channel
+  v-model="isChannelShow"
+  :user-channels="channels"
+  ></home-channel>
   </div>
 </template>
 
