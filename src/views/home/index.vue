@@ -3,6 +3,9 @@
     <van-nav-bar class="nav-bar" title="首页" fixed/>
     <!-- tab标签 -->
     <van-tabs class="channel-tabs" v-model="activeChannelIndex">
+      <div slot="nav-right" class="wap-nav">
+        <van-icon name="wap-nav"></van-icon>
+      </div>
   <van-tab
     v-for="channelItem in channels"
     :key="channelItem.id"
@@ -233,5 +236,13 @@ export default {
 }
 .channel-tabs /deep/ .van-tabs__content {
   top: 92px;
+}
+.channel-tabs .wap-nav {
+  position: sticky;
+  right: 0;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  opacity: .7;
 }
 </style>
