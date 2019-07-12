@@ -129,29 +129,59 @@ export default {
       // 没有最新数据，将原来的用于请求下一页的时间戳恢复过来
       activeChannel.timestamp = timestamp
     },
+    // async loadChannels () {
+    //   try {
+    //     let channels = []
+    //     const localChannels = window.localStorage.getItem('channels')
+    //     // 如果有本地存储的频道列表，则使用本地的
+    //     if (localChannels) {
+    //       channels = localChannels
+    //     } else {
+    //       channels = (await getUserChannels()).channels
+    //     }
+    //     // 对频道中的数据统一处理以供页面使用
+    //     channels.forEach(item => {
+    //       item.articles = [] // 频道的文章
+    //       item.timestamp = Date.now() // 用于下一页频道数据的时间戳
+    //       item.finished = false // 控制该频道上拉加载是否已加载完毕
+    //       item.upLoading = false // 控制该频道的下拉刷新 loading
+    //       item.pullRefreshLoading = false // 控制频道列表的下拉刷新状态
+    //       item.pullSuccessText = '' // 控制频道列表的下拉刷新成功提示文字
+    //     })
+    //     this.channels = channels
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // },
     async loadChannels () {
-      try {
-        let channels = []
-        const localChannels = window.localStorage.getItem('channels')
-        // 如果有本地存储的频道列表，则使用本地的
+      let channels = []
+      // 得到频道数据
+      const { user } = this.$store.state
+      // 如果已登录 则请求用户频道列表
+      if (user) {
+        channels = (await getUserChannels()).channels
+      } else {
+        // 如果没有登陆
+        // 判断是否有本地存储的判断列表
+        const localChannels = JSON.parse(window.localStorage.getItem('channels'))
+        // 如果有 则使用
         if (localChannels) {
           channels = localChannels
         } else {
+          // 如果没有 则请求获取推荐的默认频道列表
           channels = (await getUserChannels()).channels
         }
-        // 对频道中的数据统一处理以供页面使用
-        channels.forEach(item => {
-          item.articles = [] // 频道的文章
-          item.timestamp = Date.now() // 用于下一页频道数据的时间戳
-          item.finished = false // 控制该频道上拉加载是否已加载完毕
-          item.upLoading = false // 控制该频道的下拉刷新 loading
-          item.pullRefreshLoading = false // 控制频道列表的下拉刷新状态
-          item.pullSuccessText = '' // 控制频道列表的下拉刷新成功提示文字
-        })
-        this.channels = channels
-      } catch (err) {
-        console.log(err)
       }
+      // 扩展频道数据满足其他业务需求
+      channels.forEach(item => {
+        item.articles = [] // 频道的文章
+        item.timestamp = Date.now() // 用于下一页频道数据的时间戳
+        item.finished = false // 控制该频道上拉加载是否已加载完毕
+        item.upLoading = false // 控制该频道的下拉刷新 loading
+        item.pullRefreshLoading = false // 控制频道列表的下拉刷新状态
+        item.pullSuccessText = '' // 控制频道列表的下拉刷新成功提示文字
+      })
+      this.channels = channels
     },
     async loadArticles () {
       const { id: channelId, timestamp } = this.activeChannel
