@@ -3,7 +3,7 @@
     <van-nav-bar class="nav-bar" title="首页" fixed/>
     <!-- tab标签 -->
     <van-tabs class="channel-tabs" v-model="activeChannelIndex">
-      <div slot="nav-right" class="wap-nav">
+      <div slot="nav-right" class="wap-nav" @click="isChannelShow = true">
         <van-icon name="wap-nav"></van-icon>
       </div>
   <van-tab
@@ -52,7 +52,10 @@
   <van-tabbar-item icon="manager-o" to="/my">我的</van-tabbar-item>
 </van-tabbar>
 <!-- 频道组件 -->
-  <home-channel></home-channel>
+<!--
+  :value="isChannelShow"
+ -->
+  <home-channel v-model="isChannelShow"></home-channel>
   </div>
 </template>
 
@@ -72,7 +75,8 @@ export default {
       list: [],
       loading: false,
       finished: false,
-      pullRefreshLoading: false
+      pullRefreshLoading: false,
+      isChannelShow: false // 控制频道面板的显示状态
     }
   },
   computed: {
