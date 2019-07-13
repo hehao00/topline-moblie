@@ -154,7 +154,20 @@ export default {
       if (!this.isEdit) {
         this.$emit('update:active-index', index)
         this.$emit('input', false)
+        return
       }
+      // 如果是编辑状态 则是删除状态
+      const channels = this.userChannels.slice(0)
+      channels.splice(index, 1)
+      this.$emit('update:user-channels', channels)
+
+      const { user } = this.$store.state
+      // 如果用户已登录 则请求删除
+      if (user) {
+        return
+      }
+      // 如果用户没有登陆 则将数据保存在本地存储中
+      window.localStorage.getItem('channels', JSON.stringify(channels))
     }
   }
 }
