@@ -53,6 +53,7 @@
         <van-grid-item
           v-for="item in recommendChannels"
           :key="item"
+          @click="handleAllChannels(item)"
         >
           <div class="info">
             <span class="text">{{ item.name }}</span>
@@ -92,6 +93,7 @@ export default {
       该计算属性用于处理获取推荐数据  不包含用户频道列表的其他所有频道列表
       map 会在内部建立一个新数组 每遍历一次就会往新数组push一个
       includes 判断一个数组是否包含指定元素
+      计算属性也拥有watch的功能 作用是用于当数据改变之后重新计算返回一些数据
      */
     recommendChannels () {
       // 拿到重复的id
@@ -103,6 +105,7 @@ export default {
     this.loadAllChannels()
   },
   methods: {
+    // 获取所有频道列表数据
     async loadAllChannels () {
       try {
         const data = await getAllChannels()
@@ -111,6 +114,14 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+    // 点击添加频道
+    handleAllChannels (item) {
+      // userChannels是 props 数据
+      // props数据： 单向数据流
+      // 数据只受父组件影响 但是反之不会  引用类型除外  最好不要利用这个特点
+      // 建议做法将数据传递给父组件 让组件自己去修改
+      this.userChannels.push(item)
     }
   }
 }
