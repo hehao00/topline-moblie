@@ -31,6 +31,7 @@
         <van-grid-item
           v-for="(item, index) in userChannels"
           :key="item.id"
+          @click="handleUserChannelClick(item, index)"
         >
           <span
           class="text"
@@ -146,6 +147,13 @@ export default {
         // 没有就创建 有就直接覆盖
         // 本地存储数据无法像js数据变量去修改  要修改只能完全重写
         window.localStorage.setItem('channels', JSON.stringify(channels))
+      }
+    },
+    handleUserChannelClick (item, index) {
+      // 如果是非编辑状态 切换tab显示
+      if (!this.isEdit) {
+        this.$emit('update:active-index', index)
+        this.$emit('input', false)
       }
     }
   }
