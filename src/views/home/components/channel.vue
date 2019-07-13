@@ -121,7 +121,11 @@ export default {
       // props数据： 单向数据流
       // 数据只受父组件影响 但是反之不会  引用类型除外  最好不要利用这个特点
       // 建议做法将数据传递给父组件 让组件自己去修改
-      this.userChannels.push(item)
+      // this.userChannels.push(item)
+      // 始终记住 props数据是单向的 不要在子组件中去修改它 始终由父组件去修改从而影响它
+      const channels = this.userChannels.slice(0)
+      channels.push(item)
+      this.$emit('update:user-channels', channels)
     }
   }
 }
