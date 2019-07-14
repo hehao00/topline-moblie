@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel'
+import { getAllChannels, deleteUserChannels, updateUserChannels } from '@/api/channel'
 export default {
   name: 'HomeChannel',
   props: {
@@ -101,6 +101,7 @@ export default {
     recommendChannels () {
       // 拿到重复的id
       const duplicates = this.userChannels.map(item => item.id)
+      // console.log(duplicates)
       return this.allChannels.filter(item => !duplicates.includes(item.id))
     }
   },
@@ -128,7 +129,7 @@ export default {
       }
     },
     // 点击添加频道
-    handleAllChannels (item) {
+    async handleAllChannels (item) {
       // userChannels是 props 数据
       // props数据： 单向数据流
       // 数据只受父组件影响 但是反之不会  引用类型除外  最好不要利用这个特点
@@ -141,7 +142,10 @@ export default {
       const { user } = this.$store.state
       // 如果已登录 则请求添加用户频道
       if (user) {
-
+        await updateUserChannels([{
+          id: item.id,
+          seq: channels.length - 1 // 序号
+        }])
       } else {
         // 如果没有登陆 则添加到本地存储
         // 没有就创建 有就直接覆盖
@@ -149,7 +153,7 @@ export default {
         window.localStorage.setItem('channels', JSON.stringify(channels))
       }
     },
-    handleUserChannelClick (item, index) {
+    async handleUserChannelClick (item, index) {
       // 如果是非编辑状态 切换tab显示
       if (!this.isEdit) {
         this.$emit('update:active-index', index)
@@ -164,6 +168,7 @@ export default {
       const { user } = this.$store.state
       // 如果用户已登录 则请求删除
       if (user) {
+        await deleteUserChannels(item.id)
         return
       }
       // 如果用户没有登陆 则将数据保存在本地存储中
