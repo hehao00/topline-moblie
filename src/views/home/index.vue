@@ -37,7 +37,7 @@
     >
       <van-cell
         v-for="articleItem in channelItem.articles"
-        :key="articleItem.art_id"
+        :key="articleItem.art_id.toString()"
         :title="articleItem.title"
       >
       <div slot="label">
@@ -66,7 +66,7 @@
                局部： filters 选项，只能在组件内部使用
            -->
          <span>{{ articleItem.pubdate | relativeTime}}</span>
-          <van-icon class="close" name="close" />
+          <van-icon class="close" name="close" @click="handleShowMoreAction(articleItem)"/>
       </p>
       </div>
       </van-cell>
@@ -95,11 +95,14 @@
   :active-index.sync="activeChannelIndex"
   ></home-channel>
   <!-- 更多操作弹框 -->
-  <van-dialog v-model="isMoreActionShow" :showConfirmButton="false">
+  <van-dialog v-model="isMoreActionShow"
+   :showConfirmButton="false"
+   closeOnClickOverlay
+   >
     <van-cell-group v-if="!toggleRubbish">
-      <van-cell title="不感兴趣"/>
+      <van-cell title="不感兴趣" @click="handleDislike"/>
       <van-cell title="反馈垃圾内容" is-link @click="toggleRubbish = true"/>
-      <van-cell title="拉黑作者"/>
+      <van-cell title="拉黑作者" @click="handleAddblacklist"/>
     </van-cell-group>
     <van-cell-group v-else>
       <van-cell icon="arrow-left" @click="toggleRubbish = false"/>
@@ -113,7 +116,8 @@
 
 <script>
 import { getUserChannels } from '@/api/channel'
-import { getArticles } from '@/api/article'
+import { getArticles, dislikeArticles } from '@/api/article'
+// import { blacklists } from '@/api/user'
 import HomeChannel from './components/channel'
 export default {
   name: 'HomeIndex',
@@ -129,8 +133,9 @@ export default {
       finished: false,
       pullRefreshLoading: false,
       isChannelShow: false, // 控制频道面板的显示状态
-      isMoreActionShow: true, // 控制更多操作弹框面板
-      toggleRubbish: false // 控制反馈垃圾弹框内容的显示
+      isMoreActionShow: false, // 控制更多操作弹框面板
+      toggleRubbish: false, // 控制反馈垃圾弹框内容的显示
+      currenArticle: null // 存储当前操作更多的文章
     }
   },
   computed: {
@@ -211,30 +216,6 @@ export default {
       // 没有最新数据，将原来的用于请求下一页的时间戳恢复过来
       activeChannel.timestamp = timestamp
     },
-    // async loadChannels () {
-    //   try {
-    //     let channels = []
-    //     const localChannels = window.localStorage.getItem('channels')
-    //     // 如果有本地存储的频道列表，则使用本地的
-    //     if (localChannels) {
-    //       channels = localChannels
-    //     } else {
-    //       channels = (await getUserChannels()).channels
-    //     }
-    //     // 对频道中的数据统一处理以供页面使用
-    //     channels.forEach(item => {
-    //       item.articles = [] // 频道的文章
-    //       item.timestamp = Date.now() // 用于下一页频道数据的时间戳
-    //       item.finished = false // 控制该频道上拉加载是否已加载完毕
-    //       item.upLoading = false // 控制该频道的下拉刷新 loading
-    //       item.pullRefreshLoading = false // 控制频道列表的下拉刷新状态
-    //       item.pullSuccessText = '' // 控制频道列表的下拉刷新成功提示文字
-    //     })
-    //     this.channels = channels
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // },
     async loadChannels () {
       let channels = []
       // 得到频道数据
@@ -273,6 +254,32 @@ export default {
         withTop: 1 // 是否包含置顶数据
       })
       return data
+    },
+    // 处理显示更多操作弹框面板
+    handleShowMoreAction (articleItem) {
+      // 将点击操作更多的文章存储起来 用于后续使用
+      this.currenArticle = articleItem
+      // 显示弹框
+      this.isMoreActionShow = true
+    },
+    // 不感兴趣
+    async handleDislike () {
+      // 拿到操作文章的id
+      const articleId = this.currenArticle.art_id.toString()
+      // 请求操作
+      await dislikeArticles(articleId)
+      // 隐藏对话框
+      this.isMoreActionShow = false
+      // 当前频道文章列表
+      const articles = this.activeChannel.articles
+      // findIndex 是一个数组方法 它会遍历数组 找到满足 item.id === articleId 条件的数据 id
+      const delIndex = articles.findIndex(articleItem => articleItem.art_id.toString() === articleId)
+      // 把本条数据移除
+      articles.splice(delIndex, 1)
+    },
+    // 拉黑用户
+    async handleAddblacklist () {
+
     }
   }
 }

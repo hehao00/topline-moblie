@@ -19,3 +19,16 @@ export const getArticles = ({
     }
   })
 }
+
+/**
+ * 对文章不喜欢
+ */
+export const dislikeArticles = articleId => {
+  return request({
+    method: '/app/v1_0/article/dislikes',
+    url: 'POST',
+    data: {
+      target: articleId
+    }
+  })
+}
