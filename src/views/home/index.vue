@@ -117,7 +117,7 @@
 <script>
 import { getUserChannels } from '@/api/channel'
 import { getArticles, dislikeArticles } from '@/api/article'
-// import { blacklists } from '@/api/user'
+import { blacklists } from '@/api/user'
 import HomeChannel from './components/channel'
 export default {
   name: 'HomeIndex',
@@ -279,7 +279,10 @@ export default {
     },
     // 拉黑用户
     async handleAddblacklist () {
-
+      await blacklists(this.currenArticle.aut_id)
+      // 隐藏对话框
+      this.isMoreActionShow = false
+      this.$toast('操作成功')
     }
   }
 }
