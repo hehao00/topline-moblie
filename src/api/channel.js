@@ -63,3 +63,17 @@ export const updateUserChannels = channels => {
     }
   })
 }
+
+/**
+ * 批量修改用户频道列表（重置式）
+ */
+
+// export const updateUserChannels = channels => {
+//   return request({
+//     method: 'PUT',
+//     url: '/app/v1_0/user/channels',
+//     data: {
+//       channels
+//     }
+//   })
+// }

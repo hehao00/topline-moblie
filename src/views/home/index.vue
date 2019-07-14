@@ -39,7 +39,27 @@
         v-for="articleItem in channelItem.articles"
         :key="articleItem.art_id"
         :title="articleItem.title"
-      />
+      >
+      <p slot="label">
+         <span>{{ articleItem.aut_name }}</span>
+         &nbsp;
+         <span>{{ articleItem.comm_count }}评论</span>
+         &nbsp;
+         <!--
+           | relativeTime 就是在调用过滤器函数
+           过滤器函数接收的参数就是 | 前面的 item.pubdate
+           过滤器函数返回值会输出到这里
+          -->
+          <!--
+            过滤器就是函数 在模板中调用函数的另外一种方式
+            一般用于格式化输出内容 其中不会有太多的业务逻辑 一般都是对字符串的格式处理
+            过滤器可以定义到：
+               全局： Vue.filter('过滤器名称'),可以在任何组件中使用
+               局部： filters 选项，只能在组件内部使用
+           -->
+         <span>{{ articleItem.pubdate | relativeTime}}</span>
+      </p>
+      </van-cell>
     </van-list>
      </van-pull-refresh>
   </van-tab>

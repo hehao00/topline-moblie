@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import relativeTime from './filters/relative-time'
 // 设置rem基准值
 import 'amfe-flexible'
 // 导入所有组件
@@ -20,6 +21,9 @@ Vue.config.productionTip = false
 Vue.use(VeeValidate, {
   events: '' // 禁用默认事件验证
 })
+
+// 注册一个全局过滤器：处理相对时间
+Vue.filter('relativeTime', relativeTime)
 
 Validator.localize('zh_CN', zhCN)
 
