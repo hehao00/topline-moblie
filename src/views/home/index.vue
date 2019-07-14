@@ -40,7 +40,15 @@
         :key="articleItem.art_id"
         :title="articleItem.title"
       >
-      <p slot="label">
+      <div slot="label">
+        <template v-if="articleItem.cover.type">
+          <van-grid :border="false" :column-num="3">
+            <van-grid-item v-for="(img, index) in articleItem.cover.images" :key="index">
+              <van-image :src="img" lazy-load />
+            </van-grid-item>
+          </van-grid>
+        </template>
+         <p>
          <span>{{ articleItem.aut_name }}</span>
          &nbsp;
          <span>{{ articleItem.comm_count }}评论</span>
@@ -58,7 +66,9 @@
                局部： filters 选项，只能在组件内部使用
            -->
          <span>{{ articleItem.pubdate | relativeTime}}</span>
+          <van-icon class="close" name="close" />
       </p>
+      </div>
       </van-cell>
     </van-list>
      </van-pull-refresh>
@@ -276,5 +286,9 @@ export default {
   align-items: center;
   background: #fff;
   opacity: .7;
+}
+.channel-tabs .close {
+  float: right;
+  font-size: 30px;
 }
 </style>
