@@ -4,6 +4,7 @@
       placeholder="请输入搜索关键词"
       v-model="searchText"
       show-action
+      @search="handleSearch(searchText)"
     />
     <!-- 联想建议列表 -->
     <van-cell-group>
@@ -11,6 +12,7 @@
         icon="search"
         v-for="item in suggestions"
         :key="item"
+        @click="handleSearch(item)"
       >
       <!--
           {{}} 无法输出 html 字符内容
@@ -66,8 +68,18 @@ export default {
     }, 500)
   },
   methods: {
+    // 关键字高亮
     hightlight (text, keyword) {
       return text.toLowerCase().split(keyword).join(`<span style="color:red;">${keyword}</span>`)
+    },
+    // 触发搜索获取搜索查询词
+    handleSearch (q) {
+      this.$store.push({
+        name: 'search',
+        params: {
+          q
+        }
+      })
     }
   }
 }
