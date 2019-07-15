@@ -33,6 +33,7 @@
 
 <script>
 import { getSuggestion } from '@/api/search'
+import { debounce } from 'lodash'
 export default {
   name: 'SearchIndex',
 
@@ -43,16 +44,16 @@ export default {
     }
   },
   watch: {
-    async searchText (newVal) {
+    searchText: debounce(async function (newVal) {
       newVal = newVal.trim() // 去除首尾空格
-      // 如果数据为空 什么都不做
+      // 如果数据为空 则什么都不做
       if (!newVal) {
         return
       }
-      // 如果数据不为空 则请求自动补全
+      // 如果数据不为空 则请求联想建议自动补全
       const data = await getSuggestion(newVal)
       this.suggestions = data.options
-    }
+    }, 500)
   },
   methods: {}
 }
