@@ -1,127 +1,101 @@
 <template>
-  <div>
-      <!-- 头部 -->
-      <van-nav-bar class="nav-bar" title="登陆"/>
-      <!--表单 -->
+  <div class="login-wrap">
+    <van-nav-bar title="标题"/>
+    <form>
       <van-cell-group>
         <van-field
-            v-model="user.mobile"
-            clearable
-            label="手机号"
-            placeholder="请输入手机号"
-            v-validate="'required'"
-            name="mobile"
-            :error-message="errors.first('mobile')"
+          v-model="user.mobile"
+          v-validate="'required'"
+          name="mobile"
+          :error-message="errors.first('mobile')"
+          required
+          clearable
+          label="手机号"
+          placeholder="请输入手机号"
         />
-        <van-field
-            v-model="user.code"
-            type="password"
-            label="密码"
-            placeholder="请输入密码"
-            v-validate="'required'"
-            name="code"
-            :error-message="errors.first('code')"
-        />
-     </van-cell-group>
-     <!-- 登陆按钮 -->
-     <div class="login-btn">
-         <van-button
-         class="btn"
-         type="info"
-         @click.prevent="handleLogin"
-         :loading="loginLoading"
-         loading-text="登陆中..."
-         >登陆</van-button>
-     </div>
 
+        <van-field
+          v-model="user.code"
+          v-validate="'required'"
+          name="code"
+          :error-message="errors.first('code')"
+          type="code"
+          label="验证码"
+          placeholder="请输入验证码"
+          required
+        />
+      </van-cell-group>
+      <div class="login-btn">
+        <van-button
+          class="btn"
+          type="info"
+          @click.prevent="handleLogin"
+          :loading="loginLoading"
+        >登录</van-button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script>
 import { login } from '@/api/user'
+
 export default {
   name: 'LoginIndex',
-
   data () {
     return {
       user: {
-        mobile: '17635146322',
-        code: '246810'
+        mobile: '18801185985',
+        code: '123456'
       },
-      loginLoading: false, // 控制登陆
-      myErrors: {
-        mobile: '',
-        code: ''
-      }
+      loginLoading: false // 控制登录请求的 loading 状态
     }
   },
+
   created () {
-    this.configFormErrorMessages()
+    this.configCustomMessages()
   },
 
   methods: {
-    // async handleLogin () {
-    //   this.loginLoading = true
-    //   try {
-    //     // 发送请求前 校验表单数据 校验通过发送请求
-    //     const { mobile, code } = this.user
-    //     const errors = this.errors
-    //     // if (mobile.length){
-    //     //     errors.mobile = ''
-    //     // } else {
-    //     //     errors.mobile = '手机号不能为空'
-    //     //  return
-    //     // }
-    //     var myreg = /^[1][3,4,5,7,8][0-9]{9}$/
-    //     if (myreg.test(mobile)) {
-    //       errors.mobile = ''
-    //     } else {
-    //       errors.mobile = '手机号格式不正确'
-    //     }
-    //     var reg = reg = /^\d{6}$/
-    //     if (reg.test(code)) {
-    //       errors.code = ''
-    //     } else {
-    //       errors.code = '验证码有误'
-    //     }
-    //     const data = await login(this.user)
-    //     // console.log(data)
-    //     this.$store.commit('setUser', data)
-    //     // 跳转到首页
-    //     this.$router.push({ name: 'home' })
-    //   } catch (err) {
-    //     console.log(err)
-    //     console.log('登陆失败')
-    //   }
-    //   this.loginLoading = false
-    // }
     async handleLogin () {
+      this.loginLoading = true
       try {
-        // 调用 JavaScript 触发验证
+        // 这个插件的 JavaScript 验证方法设计的不好，并没有在验证失败的时候抛出异常
         const valid = await this.$validator.validate()
-        // 如果校验失败，停止后续代码执行
+
+        // 如果表单验证失败，则什么都不做
         if (!valid) {
+          // 验证失败，代码不会往后执行了，所以在这里也要取消 loading
+          this.loginLoading = false
           return
         }
-        // 表单验证通过 发送请求 loading 加载
-        this.loginLoading = true
+
+        // 表单验证通过，提交表单
         const data = await login(this.user)
+
+        // 通过提交 mutation 更新 Vuex 容器中的装填
         this.$store.commit('setUser', data)
-        // 跳转到首页
-        this.$router.push({ name: 'home' })
+
+        // 登录成功，先简单粗暴的跳转到首页，后面再处理跳转到来的页面
+        this.$router.push({
+          name: 'home'
+        })
       } catch (err) {
-        this.$toast.fail('登陆失败')
+        console.log(err)
+
+        this.$toast.fail('登录失败！')
       }
       this.loginLoading = false
     },
-    configFormErrorMessages () {
+
+    configCustomMessages () {
       const dict = {
         custom: {
           mobile: {
             required: '手机号不能为空'
           },
           code: {
-            required: '密码不能为空'
+            required: () => '验证码不能为空'
           }
         }
       }
@@ -132,17 +106,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.van-nav-bar__title {
-    color:#fff;
-}
-.nav-bar {
-    background-color: #3296fa;
-}
-.btn {
-    width:100%;
-    border-radius: 5px;
-}
 .login-btn {
-    padding:20px;
+  padding: 10px;
+  .btn {
+    width: 100%;
+  }
 }
 </style>

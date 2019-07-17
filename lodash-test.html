@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="node_modules/lodash/lodash.js"></script>
+  <script>
+    console.log(_.chunk)
+
+    // 函数节流
+    // 正常的函数调用是立即调用的
+    // 有些情况不是我们想要的，我们可能需要：当这个函数调用过快的时候，对它进行节流或者防抖
+
+    /**
+     * 函数节流就是限制函数调用的频率
+     */
+
+    // 使用 throttle 包装处理的函数
+    // throttle 会返回一个处理了节流的函数
+    const fn = _.throttle(function () {
+      console.log('函数调用了')
+    }, 3000)
+
+    // 第1次是立即调用的
+    fn()
+
+    // 之后的调用，如果在3秒以内的只执行一次
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+    // fn()
+
+    // setInterval(() => {
+    //   console.log('。。。。。')
+    //   fn()
+    // }, 100)
+
+    /**
+     * 函数防抖：当你频率过快的时候，只有超过一定时间才会调用
+     */
+    const fn2 = _.debounce(function () {
+      console.log('debounce called')
+    }, 1000)
+
+    fn2()
+    fn2()
+    fn2()
+    fn2()
+    fn2()
+    fn2()
+    fn2()
+
+    var s1 = setInterval(() => {
+      console.log('。。。。。')
+      fn2()
+    }, 100)
+    
+
+  </script>
+</body>
+</html>

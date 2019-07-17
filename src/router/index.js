@@ -6,9 +6,15 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      name: 'home',
       path: '/',
-      component: () => import('@/views/home')
+      component: () => import('@/views/tabbar-layout'),
+      children: [
+        {
+          name: 'home',
+          path: '',
+          component: () => import('@/views/home')
+        }
+      ]
     },
     {
       name: 'login',
@@ -22,8 +28,13 @@ export default new Router({
     },
     {
       name: 'search-result',
-      path: 'search/:q',
+      path: '/search/:q',
       component: () => import('@/views/search-result')
+    },
+    {
+      name: 'test',
+      path: '/test',
+      component: () => import('@/views/test')
     }
   ]
 })

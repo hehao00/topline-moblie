@@ -1,12 +1,12 @@
 /**
- * 频道相关接口封装模块
+ * 封装频道相关接口请求函数
  */
-
 import request from '@/utils/request'
+
 /**
- * 获取用户频道列表
- * 如果没有登陆则返回默认推荐的频道列表
- * 如果登陆了 则返回用户频道列表
+ * 获取首页频道列表
+ * 已登录（携带token）：用户频道列表
+ * 未登录：推荐频道列表
  */
 export const getUserChannels = () => {
   return request({
@@ -16,22 +16,8 @@ export const getUserChannels = () => {
 }
 
 /**
- * 重置用户频道列表
- */
-export const reseUserChannels = channels => {
-  return request({
-    method: 'PUT',
-    url: '/app/v1_0/user/channels',
-    data: {
-      channels
-    }
-  })
-}
-
-/**
  * 获取所有频道列表
  */
-
 export const getAllChannels = () => {
   return request({
     method: 'GET',
@@ -40,40 +26,29 @@ export const getAllChannels = () => {
 }
 
 /**
- * 删除指定用户频道
+ * 删除用户指定频道
  */
-
-export const deleteUserChannels = channelsId => {
+export const deleteUserChannel = channelId => {
   return request({
     method: 'DELETE',
-    url: `/app/v1_0/user/channels/${channelsId}`
+    url: `/app/v1_0/user/channels/${channelId}`
   })
 }
 
 /**
- * 批量修改用户频道列表（部分覆盖）
+ * 批量修改用户频道列表（重置）
+ * channels: []
+ *   { id: 频道id, seq: 顺序序号 }
+ * 数据的顺序都从 2 开始
+ * 因为 推荐是用户默认频道，推荐从 1 开始的
+ * [{ id: 频道id, seq: 1 }, { id: 频道id, seq: 序号 }, { id: 频道id, seq: 序号 }]
  */
-
-export const updateUserChannels = channels => {
+export const resetUserChannels = channels => {
   return request({
-    method: 'PATCH',
-    url: '/app/v1_0/user/channels',
+    method: 'PUT',
+    url: `/app/v1_0/user/channels`,
     data: {
       channels
     }
   })
 }
-
-/**
- * 批量修改用户频道列表（重置式）
- */
-
-// export const updateUserChannels = channels => {
-//   return request({
-//     method: 'PUT',
-//     url: '/app/v1_0/user/channels',
-//     data: {
-//       channels
-//     }
-//   })
-// }

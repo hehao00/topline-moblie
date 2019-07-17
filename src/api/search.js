@@ -1,10 +1,7 @@
-/**
- * 搜索相关数据接口
- */
 import request from '@/utils/request'
 
 /**
- * 获取联想建议（自动补全）
+ * 获取搜索联想建议
  */
 export const getSuggestion = q => {
   return request({

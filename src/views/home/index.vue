@@ -1,266 +1,307 @@
 <template>
-  <div>
-    <van-nav-bar class="nav-bar" title="首页" fixed/>
-    <!-- tab标签 -->
+  <div class="home">
+    <van-nav-bar title="首页" fixed @click.native="$router.push({ name: 'search' })"/>
+    <!--
+      activeChannelIndex 绑定当前激活的标签页，使用索引
+      -->
     <van-tabs class="channel-tabs" v-model="activeChannelIndex">
       <div slot="nav-right" class="wap-nav" @click="isChannelShow = true">
-        <van-icon name="wap-nav"></van-icon>
+        <van-icon name="wap-nav" />
       </div>
-  <van-tab
-    v-for="channelItem in channels"
-    :key="channelItem.id"
-    :title="channelItem.name"
-  >
-    <!-- 下拉刷新 -->
-    <!--
-      下拉刷新组件
-      isLoading 控制下拉的 loading 状态
-      refresh 下拉之后触发的事件
-     -->
-   <van-pull-refresh
-   v-model="pullRefreshLoading"
-   @refresh="onRefresh"
-   :success-duration="1000"
-   :success-text="channelItem.downPullSuccessText"
-   >
-    <!-- list列表 -->
-    <!--
-      loading 控制加载更多的loading状态
-      finished 控制是否已加载结束
-      onLoad 事件会在滚动到底部区域的时候自动调用 每次onLoad 它会自动让loading 为true
-     -->
-    <van-list
-      v-model="channelItem.upPullLoading"
-      :finished="channelItem.upPullFinished"
-      finished-text="没有更多了"
-      @load="onLoad"
-    >
-      <van-cell
-        v-for="articleItem in channelItem.articles"
-        :key="articleItem.art_id.toString()"
-        :title="articleItem.title"
+      <van-tab
+        v-for="channelItem in channels"
+        :key="channelItem.id"
+        :title="channelItem.name"
       >
-      <div slot="label">
-        <template v-if="articleItem.cover.type">
-          <van-grid :border="false" :column-num="3">
-            <van-grid-item v-for="(img, index) in articleItem.cover.images" :key="index">
-              <van-image :src="img" lazy-load />
-            </van-grid-item>
-          </van-grid>
-        </template>
-         <p>
-         <span>{{ articleItem.aut_name }}</span>
-         &nbsp;
-         <span>{{ articleItem.comm_count }}评论</span>
-         &nbsp;
-         <!--
-           | relativeTime 就是在调用过滤器函数
-           过滤器函数接收的参数就是 | 前面的 item.pubdate
-           过滤器函数返回值会输出到这里
+        <!--
+          下拉刷新
+          isLoading 用来控制下拉刷新的 loading 状态
+          下拉刷新的时候，它会自动将 loading 设置为 true
+          @refresh 当下拉刷新的时候会触发
           -->
+        <van-pull-refresh
+          v-model="channelItem.downPullLoading"
+          @refresh="onRefresh"
+          :success-text="channelItem.downPullSuccessText"
+          :success-duration="1000"
+        >
           <!--
-            过滤器就是函数 在模板中调用函数的另外一种方式
-            一般用于格式化输出内容 其中不会有太多的业务逻辑 一般都是对字符串的格式处理
-            过滤器可以定义到：
-               全局： Vue.filter('过滤器名称'),可以在任何组件中使用
-               局部： filters 选项，只能在组件内部使用
-           -->
-         <span>{{ articleItem.pubdate | relativeTime}}</span>
-          <van-icon class="close" name="close" @click="handleShowMoreAction(articleItem)"/>
-      </p>
-      </div>
-      </van-cell>
-    </van-list>
-     </van-pull-refresh>
-  </van-tab>
-</van-tabs>
-<!-- 底部 -->
-<van-tabbar>
-  <van-tabbar-item icon="wap-home" to="/">首页</van-tabbar-item>
-  <van-tabbar-item icon="comment-o" to="/qa">问答</van-tabbar-item>
-  <van-tabbar-item icon="video-o" to="/video">视频</van-tabbar-item>
-  <van-tabbar-item icon="manager-o" to="/my">我的</van-tabbar-item>
-</van-tabbar>
-<!-- 频道组件 -->
-<!--
-  :value="isChannelShow"
-  .sync 修饰会自动监听一个事件：
-  @update:user-channels="channels=$event"
-  给props数组加.sync就是v-model的作用
-  只不过一个组件只能又一个v-model
- -->
-  <home-channel
-  v-model="isChannelShow"
-  :user-channels.sync="channels"
-  :active-index.sync="activeChannelIndex"
-  ></home-channel>
-  <!-- 更多操作弹框 -->
-  <van-dialog v-model="isMoreActionShow"
-   :showConfirmButton="false"
-   closeOnClickOverlay
-   :before-close="handleMoreActionClose"
-   >
-    <van-cell-group v-if="!toggleRubbish">
-      <van-cell title="不感兴趣" @click="handleDislike"/>
-      <van-cell title="反馈垃圾内容" is-link @click="toggleRubbish = true"/>
-      <van-cell title="拉黑作者" @click="handleAddblacklist"/>
-    </van-cell-group>
-    <van-cell-group v-else>
-      <van-cell icon="arrow-left" @click="toggleRubbish = false"/>
-      <van-cell
-        v-for="item in repotTypes"
-        :key="item.value"
-        :title="item.label"
-        @click="handleReportArticle(item.value)"
-      />
-    </van-cell-group>
-  </van-dialog>
+            列表组件：主要提供上拉加载更多的功能
+            loading 用来控制加载中 loading 状态
+            finished 用来控制是否加载完毕
+            @load 加载更多的时候触发的一个事件，它自动会调用 onLoad 函数拿数据，以填充页面
+                它每次调用 onLoad 会自动将 loading 设置为 true
+                我们需要在 onLoad 中拿到本次加载的数据以后，将 loading 设置为 false
+          -->
+          <van-list
+            v-model="channelItem.upPullLoading"
+            :finished="channelItem.upPullFinished"
+            finished-text="没有更多了"
+            @load="onLoad"
+          >
+            <van-cell
+              v-for="articleItem in channelItem.articles"
+              :key="articleItem.art_id.toString()"
+              :title="articleItem.title">
+              <div slot="label">
+                <template v-if="articleItem.cover.type">
+                  <van-grid :border="false" :column-num="3">
+                    <van-grid-item
+                      v-for="(img, index) in articleItem.cover.images"
+                      :key="index"
+                    >
+                      <van-image :src="img" lazy-load />
+                    </van-grid-item>
+                  </van-grid>
+                </template>
+                <p>
+                  <span>{{ articleItem.aut_name }}</span>
+                  &nbsp;
+                  <span>{{ articleItem.comm_count }}评论</span>
+                  &nbsp;
+                  <!--
+                    把后端返回的数据转换成另一种格式输出：
+                    1. 从数据的源头来转换，重用麻烦
+                    2. 使用一个方法，重用麻烦
+                    3. 使用过滤器
+                      局部过滤器，filters 选项，只能在当前组件使用
+                      全局过滤器，Vue.filter(...)，任何组件都可以使用
+                    什么情况下建议使用过滤器？一般都是一些简单的文本格式操作。
+                   -->
+                  <!-- <span>{{ relativeTime(articleItem.pubdate) }}</span> -->
+                  <span>{{ articleItem.pubdate | relativeTime }}</span>
+                  <van-icon class="close" name="close" @click="handleShowMoreAction(articleItem)" />
+                </p>
+              </div>
+            </van-cell>
+          </van-list>
+        </van-pull-refresh>
+      </van-tab>
+    </van-tabs>
+
+    <!-- 频道管理组件 -->
+    <!--
+      v-model 实际上是：
+        v-bind:value="数据"
+        v-on:input="数据 = $event"
+        :active-index.sync="activeChannelIndex" 相当于两句代码的简写
+          :active-index="activeChannelIndex"
+          @update:active-index="activeChannelIndex = $event"
+
+      :active-index="activeChannelIndex"
+      @update:active-index="activeChannelIndex = $event"
+
+      当你给一个属性加上 .sync 修饰符的时候，它会自动监听
+        @update:绑定的字段="绑定的字段 = $event"
+        其中的事件名称中的 update: 是固定的语法
+        所以你在你的子组件中发布自定义事件的时候务必要发送一个名字叫 update:绑定的字段 的事件
+      参考文档：https://cn.vuejs.org/v2/guide/components-custom-events.html#sync-%E4%BF%AE%E9%A5%B0%E7%AC%A6
+      说白了：props数据.sync 和 v-model 的作用是一样的，但是一个组件只能有一个 v-mode
+
+      v-model="isChannelShow" 是
+        v-bind:value="isChannelShow"
+        @input="isChannelShow = $event"
+        的简写
+     -->
+    <HomeChannel
+      v-model="isChannelShow"
+      :user-channels="channels"
+      :active-index.sync="activeChannelIndex"
+    />
+    <!-- 频道管理组件 -->
+
+    <!-- 更多操作 -->
+    <more-action
+      v-model="isMoreActionShow"
+      :current-article="currentArticle"
+      @dislike-success="handleDislikeSuccess"
+      @add-blacklist-success="handleDislikeSuccess"
+    />
+    <!-- /更多操作 -->
   </div>
 </template>
 
 <script>
 import { getUserChannels } from '@/api/channel'
-import { getArticles, dislikeArticles, reportArticle } from '@/api/article'
-import { blacklists } from '@/api/user'
+import { getArticles } from '@/api/article'
 import HomeChannel from './components/channel'
+import MoreAction from './components/more-action'
+
 export default {
   name: 'HomeIndex',
   components: {
-    HomeChannel
+    HomeChannel,
+    MoreAction
   },
   data () {
     return {
-      channels: [],
       activeChannelIndex: 0,
-      list: [],
-      loading: false,
-      finished: false,
-      pullRefreshLoading: false,
-      isChannelShow: false, // 控制频道面板的显示状态
-      isMoreActionShow: false, // 控制更多操作弹框面板
-      toggleRubbish: false, // 控制反馈垃圾弹框内容的显示
-      currenArticle: null, // 存储当前操作更多的文章
-      repotTypes: [
-        { label: '标题夸张', value: '1' },
-        { label: '低俗色情', value: '2' },
-        { label: '错别字多', value: '3' },
-        { label: '旧闻重复', value: '4' },
-        { label: '广告软文', value: '5' },
-        { label: '内容不实', value: '6' },
-        { label: '涉嫌违法犯罪', value: '7' },
-        { label: '侵权', value: '8' },
-        { label: '其他问题', value: '0' }
-      ]
+      channels: [], // 存储频道列表
+      isChannelShow: false,
+      isMoreActionShow: false,
+      currentArticle: null
     }
   },
+
+  // 局部过滤器只能在当前组件使用
+  // filters: {
+  //   过滤器名称 (参数) {
+  //     // 其它逻辑
+  //     return 结果
+  //   }
+  // },
+
   computed: {
+    /**
+     * 当前激活的频道
+     */
     activeChannel () {
       return this.channels[this.activeChannelIndex]
     }
   },
+
   watch: {
-    /**
-     * 监视容器中的user的状态 只要user发送改变 就重新获取频道列表
-     * 凡是能this.出来的都可以监视
-     */
+    // 监视容器中的 user 用户
+    // 记住：凡是能 this. 点儿出来的成员都可以直接在这里监视
+    // 由于路由缓存了，所以这里监视用户的登录状态，如果登录了，则加载用户的频道列表
     async '$store.state.user' () {
-      // 重新加载频道数据
-      await this.loadChannels()
-      // 由于重新加载了频道数据 所以文章内容也都清空了
-      // 而且上拉加载更多的 onLoad 没有主动触发
-      // 手动触发上拉加载更多的onLoad
-      // 只需将当前激活频道的上拉 loading 设置为 true 会自动调用自己的onLoad 函数
-      this.activeChannel.upLoading = true
+      // 重新加载用户频道列表
+      this.loadChannels()
+
+      // 频道数据改变，重新加载当前激活频道的数据
+      // 只需将上拉加载更多设置为 true，它就会自动去调用 onLoad 请求函数
+      this.activeChannel.upPullLoading = true
     }
+
+    // isChannelShow () {
+    //   console.log(this.isChannelShow, this.activeChannel.articles)
+    //   // 如果频道面板隐藏了，并且当前频道没有数据，那我们就手动的 onLoad 加载更多
+    //   if (!this.isChannelShow && !this.activeChannel.articles.length) {
+    //     console.log('onLoad')
+    //     this.activeChannel.upPullLoading = true
+    //     this.onLoad()
+    //   }
+    // }
   },
-  async created () {
-    // 加载频道列表
-    await this.loadChannels()
-    // 初始加载第1项频道的数据列表
-    // 注意：务必在记载频道之后
-    // this.loadArticles()
+
+  created () {
+    this.loadChannels()
   },
+
   methods: {
+    async loadChannels () {
+      const { user } = this.$store.state
+
+      let channels = []
+
+      // 已登录
+      if (user) {
+        const data = await getUserChannels()
+        channels = data.channels
+      } else {
+        // 未登录
+
+        // 如果有本地存储数据则使用本地存储中的频道列表
+        const localChannels = JSON.parse(window.localStorage.getItem('channels'))
+        if (localChannels) {
+          channels = localChannels
+        } else {
+          // 如果没有本地存储频道数据则请求获取默认推荐频道列表
+          const data = await getUserChannels()
+          channels = data.channels
+        }
+      }
+
+      // 修改 channels，将这个数据结构修改为满足我们使用的需求
+      channels.forEach(item => {
+        item.articles = [] // 用来存储当前文章的列表
+        item.timestamp = Date.now() // 存储下一页数据的时间戳
+        item.downPullLoading = false // 控制当前频道的下拉刷新 loading 状态
+        item.upPullLoading = false // 控制当前频道的上拉加载更多的 loading 状态
+        item.upPullFinished = false // 控制当前频道数据是否加载完毕
+      })
+
+      this.channels = channels
+    },
+
     /**
-     * 上拉加载更多，应该往频道的 articles 中最后 push 数据
-     * onLoad 一上来就会自动调用，当请求的数据不够一屏的时候，它会多次调用
-     * onLoad 会自动开启加载 loading 效果
+     * 上拉加载更多，push 数据
      */
     async onLoad () {
+      await this.$sleep(800)
+
       let data = []
       data = await this.loadArticles()
-      // 如果没有最新数据，则请求上一次的数据
-      if (data.pre_timestamp && data.results.length === 0) {
-        // 将最近的推荐数据请求的时间戳更新到频道中
+
+      // 如果没有 pre_timestamp 并且数组是空的，则意味着没有数据了
+      if (!data.pre_timestamp && !data.results.length) {
+        // 设置该频道数据已记载完毕，组件会自动给出提示，并且不再 onLoad
+        this.activeChannel.upPullFinished = true
+
+        // 取消 loading
+        this.activeChannel.upPullLoading = false
+
+        // 代码不要往后继续执行了
+        return
+      }
+
+      // pre_timestamp 下一页的页码
+      // results 文章列表
+      // console.log(data)
+
+      // 解决初始化的时候没有最新推荐数据的问题（没有最新数据，那就加载上一次推荐数据）
+      if (data.pre_timestamp && !data.results.length) {
         this.activeChannel.timestamp = data.pre_timestamp
+
         // 加载下一页数据
         data = await this.loadArticles()
       }
-      // 数据加载好以后 将pre_timestamp更新到当前频道中用于加载下页数据
+
+      // 数据加载好以后，将 pre_timestamp 更新到当前频道的中用于加载下下页数据
       this.activeChannel.timestamp = data.pre_timestamp
-      // 将文章更新到频道中
+
+      // 将文章数据更新到频道中（注意：是 push 追加，不是覆盖）
       this.activeChannel.articles.push(...data.results)
-      // 数据加载完毕 取消上拉的loading
+
+      // 数据加载完毕，取消上拉 loading
       this.activeChannel.upPullLoading = false
     },
+
     /**
-     * 下拉刷新
+     * 下拉刷新，如果有新数据，则是重置列表数据
      */
     async onRefresh () {
       const { activeChannel } = this
       // 备份加载下一页数据的时间戳
       const timestamp = activeChannel.timestamp
+
       // 使用最新时间戳去请求最新的推荐数据
       activeChannel.timestamp = Date.now()
       const data = await this.loadArticles()
+
       // 如果有最新数据，将数据更新到频道的文章列表中
       if (data.results.length) {
         // 将当前最新的推荐内容重置到频道文章中
         activeChannel.articles = data.results
+
         // 由于你重置了文章列表，那么当前数据中的 pre_timestamp 就是上拉加载更多的下一页数据的时间戳
         activeChannel.timestamp = data.pre_timestamp
         activeChannel.downPullSuccessText = '更新成功'
+
         // 当下拉刷新有数据并重置以后数据无法满足一屏，所以我们使用 onLoad 再多加载一页数据
         this.onLoad()
       } else {
         // 如果没有最新数据，提示已是最新内容
         activeChannel.downPullSuccessText = '已是最新数据'
       }
+
       // 下拉刷新结束，取消 loading 状态
       activeChannel.downPullLoading = false
+
       // 没有最新数据，将原来的用于请求下一页的时间戳恢复过来
       activeChannel.timestamp = timestamp
     },
-    async loadChannels () {
-      let channels = []
-      // 得到频道数据
-      const { user } = this.$store.state
-      // 如果已登录 则请求用户频道列表
-      if (user) {
-        channels = (await getUserChannels()).channels
-      } else {
-        // 如果没有登陆
-        // 判断是否有本地存储的判断列表
-        const localChannels = JSON.parse(window.localStorage.getItem('channels'))
-        // 如果有 则使用
-        if (localChannels) {
-          channels = localChannels
-        } else {
-          // 如果没有 则请求获取推荐的默认频道列表
-          channels = (await getUserChannels()).channels
-        }
-      }
-      // 扩展频道数据满足其他业务需求
-      channels.forEach(item => {
-        item.articles = [] // 频道的文章
-        item.timestamp = Date.now() // 用于下一页频道数据的时间戳
-        item.finished = false // 控制该频道上拉加载是否已加载完毕
-        item.upLoading = false // 控制该频道的下拉刷新 loading
-        item.pullRefreshLoading = false // 控制频道列表的下拉刷新状态
-        item.pullSuccessText = '' // 控制频道列表的下拉刷新成功提示文字
-      })
-      this.channels = channels
-    },
+
     async loadArticles () {
       const { id: channelId, timestamp } = this.activeChannel
       const data = await getArticles({
@@ -270,89 +311,46 @@ export default {
       })
       return data
     },
-    // 处理显示更多操作弹框面板
-    handleShowMoreAction (articleItem) {
-      // 将点击操作更多的文章存储起来 用于后续使用
-      this.currenArticle = articleItem
-      // 显示弹框
+
+    handleShowMoreAction (article) {
+      // 当执行更多操作的文章记录起来，通过组件传值传给 MoreAction 组件
+      this.currentArticle = article
+
+      // 显示更多操作的弹框
       this.isMoreActionShow = true
     },
-    // 不感兴趣
-    async handleDislike () {
-      // 拿到操作文章的id
-      const articleId = this.currenArticle.art_id.toString()
-      // 请求操作
-      await dislikeArticles(articleId)
-      // 隐藏对话框
-      this.isMoreActionShow = false
-      // 当前频道文章列表
+
+    handleDislikeSuccess () {
       const articles = this.activeChannel.articles
-      // findIndex 是一个数组方法 它会遍历数组 找到满足 item.id === articleId 条件的数据 id
-      const delIndex = articles.findIndex(articleItem => articleItem.art_id.toString() === articleId)
-      // 把本条数据移除
+      const delIndex = articles.findIndex(item => item === this.currentArticle)
       articles.splice(delIndex, 1)
-    },
-    // 拉黑用户
-    async handleAddblacklist () {
-      await blacklists(this.currenArticle.aut_id)
-      // 隐藏对话框
       this.isMoreActionShow = false
       this.$toast('操作成功')
-    },
-    // 举报文章
-    async handleReportArticle (type) {
-      try {
-        await reportArticle({
-          articleId: this.currentArticle.art_id.toString(),
-          type,
-          remark: ''
-        })
-        this.isMoreActionShow = false
-        this.$toast('举报成功')
-      } catch (err) {
-        // if (err.response.status === 409) {
-        //   this.$toast('该文章已被举报')
-        // }
-        console.log(err)
-      }
-    },
-    handleMoreActionClose (action, done) {
-      // 瞬间关闭
-      done()
-      // 将里面的面板切换为初始状态
-      window.setTimeout(() => {
-        this.toggleRubbish = false
-      })
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.nav-bar {
-    background-color: #3296fa;
-}
-.van-nav-bar__title {
-  color: #fff;
-}
 .channel-tabs {
-  margin-bottom:92px;
+  margin-bottom: 100px;
 }
+
+// 深度作用选择器：https://vue-loader.vuejs.org/zh/guide/scoped-css.html#%E6%B7%B1%E5%BA%A6%E4%BD%9C%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8
 .channel-tabs /deep/ .van-tabs__wrap {
   position: fixed;
   top: 92px;
 }
+
 .channel-tabs /deep/ .van-tabs__content {
-  top: 92px;
+  margin-top: 100px;
 }
-.channel-tabs .wap-nav {
-  position: sticky;
+
+.channel-tabs /deep/ .wap-nav {
+  position: fixed;
   right: 0;
-  display: flex;
-  align-items: center;
-  background: #fff;
-  opacity: .7;
 }
+
 .channel-tabs .close {
   float: right;
   font-size: 30px;

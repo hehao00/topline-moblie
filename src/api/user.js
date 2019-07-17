@@ -1,7 +1,14 @@
-// 用户相关接口封装模块
+/**
+ * 封装用户相关接口请求函数
+ */
+
 import request from '@/utils/request'
 
+/**
+ * 用户登录
+ */
 export const login = ({ mobile, code }) => {
+  // 指向其他逻辑
   return request({
     method: 'POST',
     url: '/app/v1_0/authorizations',
@@ -13,9 +20,10 @@ export const login = ({ mobile, code }) => {
 }
 
 /**
- * 拉黑用户
+ * 拉黑用户（加入黑名单）
  */
-export const blacklists = userId => {
+export const addBlacklist = userId => {
+  // 指向其他逻辑
   return request({
     method: 'POST',
     url: '/app/v1_0/user/blacklists',
