@@ -42,7 +42,9 @@
             <van-cell
               v-for="articleItem in channelItem.articles"
               :key="articleItem.art_id.toString()"
-              :title="articleItem.title">
+              :title="articleItem.title"
+              @click="$router.push({ name: 'article', params: { articleId: articleItem.art_id } })"
+              >
               <div slot="label">
                 <template v-if="articleItem.cover.type">
                   <van-grid :border="false" :column-num="3">

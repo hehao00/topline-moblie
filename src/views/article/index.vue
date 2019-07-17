@@ -1,10 +1,20 @@
 <template>
-  <div>
-    <AuthInfo />
-    <CommentList />
+  <div class="article-wrap">
+      <van-nav-bar
+       title="黑马头条"
+       left-text="返回"
+       left-arrow
+       @click-left="$router.back()"
+      />
+      <h2 class="article-title">文章标题</h2>
+    <AuthInfo class="auth-info" />
+    <div class="ariticle-content">
+       <p>hello</p>
+    </div>
     <MoreAction />
     <RecommendArticle />
     <RecommendSearch />
+    <CommentList />
     <ReplyList />
     <WriteComment />
   </div>
@@ -20,16 +30,17 @@ import ReplyList from './components/reply-list'
 import WriteComment from './components/write-comment'
 export default {
   name: 'ArticleIndex',
-
+  components: {
+    AuthInfo,
+    CommentList,
+    MoreAction,
+    RecommendArticle,
+    RecommendSearch,
+    ReplyList,
+    WriteComment
+  },
   data () {
     return {
-      AuthInfo,
-      CommentList,
-      MoreAction,
-      RecommendArticle,
-      RecommendSearch,
-      ReplyList,
-      WriteComment
     }
   },
 
@@ -37,6 +48,20 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
+.article-wrap {
+    padding: 20px;
+    .article-title {
+        font-size: 50px;
+        font-weight: 400;
+    }
+    .ariticle-content {
+        font-size: 24px;
+    }
+    .auth-info {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+    }
+}
 </style>
