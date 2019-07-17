@@ -11,6 +11,7 @@ import VeeValidate, { Validator } from 'vee-validate'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn' // 加载中文语言包
 import relativeTime from 'dayjs/plugin/relativeTime' // dayjs 的 相对时间插件
+import checkLogin from './utils/check-login'
 dayjs.extend(relativeTime) // 把插件注册到 dayjs 中
 
 dayjs.locale('zh-cn') // 配置使用中文语言包
@@ -35,7 +36,8 @@ Validator.localize('zh_CN', zhCN)
 
 Vue.use(Vant)
 Vue.use(Lazyload)
-
+// 将检查登陆状态挂载到vue原型上，任何组件就都可以使用了
+Vue.prototype.$checkLogin = checkLogin
 Vue.config.productionTip = false
 
 Vue.prototype.$sleep = time => {
