@@ -32,9 +32,9 @@ export default new Router({
       component: () => import('@/views/search-result')
     },
     {
-      name: 'test',
-      path: '/test',
-      component: () => import('@/views/test')
+      name: 'article',
+      path: '/article/:articleId',
+      component: () => import('@/views/article')
     }
   ]
 })

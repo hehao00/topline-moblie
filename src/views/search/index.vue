@@ -138,12 +138,6 @@ export default {
           q: queryText
         }
       })
-
-      // 或者
-      // this.$router.push('/serach-result/' + queryText)
-
-      // 或者
-      // this.$router.push(`/serach-result/${queryText}`)
     }
   }
 }

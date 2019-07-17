@@ -19,9 +19,9 @@
           v-validate="'required'"
           name="code"
           :error-message="errors.first('code')"
-          type="code"
-          label="验证码"
-          placeholder="请输入验证码"
+          type="password"
+          label="密码"
+          placeholder="请输入密码"
           required
         />
       </van-cell-group>
@@ -45,8 +45,8 @@ export default {
   data () {
     return {
       user: {
-        mobile: '18801185985',
-        code: '123456'
+        mobile: '17635146322',
+        code: '246810'
       },
       loginLoading: false // 控制登录请求的 loading 状态
     }
