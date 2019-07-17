@@ -53,7 +53,7 @@ export default {
         ch_id: 13,
         content: `<p/>摘要：在图像分析中，卷积神经网络</p>`,
         is_collected: false,
-        is_followed: false,
+        is_followed: true,
         pubdate: '2018-11-29T15:22:27',
         recomments: [],
         title: '全连接网络到卷积神经网络逐步推导（组图无公式）'

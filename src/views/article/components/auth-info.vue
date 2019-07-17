@@ -9,7 +9,10 @@
     </div>
      </div>
     <div>
-      <van-button type="danger">关注</van-button>
+      <van-button
+        :type="article.is_followed ? 'danger' : '关注'"
+        @click="handleFollow"
+      >{{ article.is_followed ? '已关注' : '关注' }}</van-button>
     </div>
   </div>
 </template>
@@ -28,7 +31,11 @@ export default {
     }
   },
   created () {},
-  methods: {}
+  methods: {
+    handleFollow () {
+      console.log('follow')
+    }
+  }
 }
 </script>
 
