@@ -20,7 +20,11 @@ export default () => {
   }).then(() => {
     // 用户点击确定 跳转到登录页
     router.push({
-      name: 'login'
+      name: 'login',
+      query: { // 传递查询字符串
+        // router.currentRoute 用于在非组件模块中获取当前路由对象
+        redirect: router.currentRouter.fullPath
+      }
     })
     // 登陆成功 返回之前的页面
   }).catch(() => {

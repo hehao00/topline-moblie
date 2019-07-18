@@ -77,12 +77,12 @@ export default {
         this.$store.commit('setUser', data)
 
         // 登录成功，先简单粗暴的跳转到首页，后面再处理跳转到来的页面
-        this.$router.push({
-          name: 'home'
-        })
+        // this.$router.push({
+        //   name: 'home'
+        // })
+        const redirect = this.router.query.redirect || '/'
+        this.$router.push(redirect)
       } catch (err) {
-        console.log(err)
-
         this.$toast.fail('登录失败！')
       }
       this.loginLoading = false
