@@ -8,24 +8,24 @@
       @load="onLoad"
     >
       <van-cell
-        v-for="item in list"
-        :key="item"
+        v-for="item in comments"
+        :key="item.com_id.toString()"
       >
         <div slot="icon">
-          <img class="avatar" src="http://toutiao.meiduo.site/Fn6-mrb5zLTZIRG3yH3jG8HrURdU" alt="">
+          <img class="avatar" :src="item.aut_photo" alt="">
         </div>
         <div slot="title">
-          <span>只是为了好玩儿</span>
+          <span>{{ item.aut_name }}</span>
         </div>
         <div slot="default">
-          <van-button icon="like-o" size="mini" plain>赞</van-button>
+          <van-button icon="like-o" size="mini" plain>赞{{ item.like_count }}</van-button>
         </div>
         <div slot="label">
-          <p>hello world</p>
+          <p>{{ item.content }}</p>
           <p>
-            <span>2019-7-17 14:08:20</span>
-            ·
-            <span>回复</span>
+            <span>{{ item.pubdate | relativeTime }}</span>
+
+            <span>回复{{ item.reply_count }}</span>
           </p>
         </div>
       </van-cell>
@@ -34,20 +34,45 @@
 </template>
 
 <script>
+import { getComments } from '@/api/comment'
 export default {
   name: 'CommentList',
-  props: {},
+  props: {
+    articleId: {
+      type: [Number, String]
+    },
+    commentId: {
+      type: [Number, String]
+    }
+  },
   data () {
     return {
-      list: [],
+      comments: [],
       loading: false,
-      finished: false
+      finished: false,
+      offset: null,
+      limit: 10
     }
   },
   created () {},
   methods: {
-    onLoad () {
-      console.log('onLoad')
+    async onLoad () {
+      const data = await getComments({
+        source: this.articleId || this.commentId,
+        offset: this.offset,
+        limit: this.limit,
+        isArticle: !!this.articleId // 获取文章评论？还是获取评论的回复
+      })
+      // 如果数组为空 则表示没有数据
+      if (!data.result.length) {
+        this.finished = true
+        this.loading = false
+        return
+      }
+      // 如果有数据 添加数据
+      this.comments.push(...data.result)
+      this.loading = false
+      // 将本次数据拿到的 last_id保存起来 用于下一次 onLoad
     }
   }
 }

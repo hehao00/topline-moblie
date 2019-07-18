@@ -14,7 +14,7 @@
        <p>hello</p>
     </div>
     <MoreAction :article="article" />
-    <CommentList />
+    <CommentList :article-id="$route.params.articleId"/>
     <ReplyList />
     <WriteComment />
   </div>
