@@ -14,8 +14,6 @@
        <p>hello</p>
     </div>
     <MoreAction :article="article" />
-    <RecommendArticle />
-    <RecommendSearch />
     <CommentList />
     <ReplyList />
     <WriteComment />
@@ -26,8 +24,6 @@
 import AuthInfo from './components/auth-info'
 import CommentList from './components/comment-list'
 import MoreAction from './components/more-action'
-import RecommendArticle from './components/recommend-article'
-import RecommendSearch from './components/recommend-search'
 import ReplyList from './components/reply-list'
 import WriteComment from './components/write-comment'
 import { getArticlesDetail } from '@/api/article'
@@ -37,8 +33,6 @@ export default {
     AuthInfo,
     CommentList,
     MoreAction,
-    RecommendArticle,
-    RecommendSearch,
     ReplyList,
     WriteComment
   },
